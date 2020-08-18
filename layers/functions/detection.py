@@ -20,8 +20,7 @@ class Detect(Function):
             raise ValueError('nms_threshold must be non negative.')
         self.conf_thresh = conf_thresh
         self.variance = cfg['variance']
-
-    def forward(self, loc_data, conf_data, prior_data):
+    def __call__(self, loc_data, conf_data, prior_data):
         """
         Args:
             loc_data: (tensor) Loc preds from loc layers

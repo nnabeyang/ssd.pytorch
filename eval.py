@@ -303,7 +303,7 @@ cachedir: Directory for caching the annotations
         splitlines = [x.strip().split(' ') for x in lines]
         image_ids = [x[0] for x in splitlines]
         confidence = np.array([float(x[1]) for x in splitlines])
-        BB = np.array([[float(z) for z in x[2:]] for x in splitlines])
+        BB = np.array([[float(z) - 1. for z in x[2:]] for x in splitlines])
 
         # sort by confidence
         sorted_ind = np.argsort(-confidence)
@@ -327,12 +327,12 @@ cachedir: Directory for caching the annotations
                 iymin = np.maximum(BBGT[:, 1], bb[1])
                 ixmax = np.minimum(BBGT[:, 2], bb[2])
                 iymax = np.minimum(BBGT[:, 3], bb[3])
-                iw = np.maximum(ixmax - ixmin, 0.)
-                ih = np.maximum(iymax - iymin, 0.)
+                iw = np.maximum(ixmax - ixmin + 1., 0.)
+                ih = np.maximum(iymax - iymin + 1., 0.)
                 inters = iw * ih
-                uni = ((bb[2] - bb[0]) * (bb[3] - bb[1]) +
-                       (BBGT[:, 2] - BBGT[:, 0]) *
-                       (BBGT[:, 3] - BBGT[:, 1]) - inters)
+                uni = ((bb[2] - bb[0] + 1.) * (bb[3] - bb[1] + 1.) +
+                       (BBGT[:, 2] - BBGT[:, 0] + 1.) *
+                       (BBGT[:, 3] - BBGT[:, 1] + 1.) - inters)
                 overlaps = inters / uni
                 ovmax = np.max(overlaps)
                 jmax = np.argmax(overlaps)

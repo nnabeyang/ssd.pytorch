@@ -50,6 +50,8 @@ parser.add_argument('--voc_root', default=VOC_ROOT,
                     help='Location of VOC root directory')
 parser.add_argument('--cleanup', default=True, type=str2bool,
                     help='Cleanup and remove results files following eval')
+parser.add_argument('--eleven_point_metric', default=True, type=str2bool,
+                    help='Use the VOC 07 11 point metric')
 
 args = parser.parse_args()
 
@@ -362,7 +364,7 @@ cachedir: Directory for caching the annotations
 
 
 def test_net(save_folder, net, cuda, dataset, transform, top_k,
-             im_size=300, thresh=0.05):
+             im_size=300, thresh=0.05, use_07=True):
     num_images = len(dataset)
     # all detections are collected into:
     #    all_boxes[cls][image] = N x 5 array of detections in
@@ -410,12 +412,12 @@ def test_net(save_folder, net, cuda, dataset, transform, top_k,
         pickle.dump(all_boxes, f, pickle.HIGHEST_PROTOCOL)
 
     print('Evaluating detections')
-    evaluate_detections(all_boxes, output_dir, dataset)
+    evaluate_detections(all_boxes, output_dir, dataset, use_07)
 
 
-def evaluate_detections(box_list, output_dir, dataset):
+def evaluate_detections(box_list, output_dir, dataset, use_07):
     write_voc_results_file(box_list, dataset)
-    do_python_eval(output_dir)
+    do_python_eval(output_dir, use_07)
 
 
 if __name__ == '__main__':
@@ -435,4 +437,6 @@ if __name__ == '__main__':
     # evaluation
     test_net(args.save_folder, net, args.cuda, dataset,
              BaseTransform(net.size, dataset_mean), args.top_k, 300,
-             thresh=args.confidence_threshold)
+             thresh=args.confidence_threshold,
+             use_07=args.eleven_point_metric
+    )
